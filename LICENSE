@@ -1,0 +1,11 @@
+Copyright (c) 2026 Sylvain Robitaille
+
+This repository contains a small patch and accompanying documentation intended for review and possible integration into Slackware-current.
+
+The patch is provided as-is, without warranty. Slackware and its installer are trademarks and works of their respective authors and maintainers. This repository is not an official Slackware repository.
+
+Notwithstanding any license requirement stated by the upstream Slackware source, the accompanying original patch description and documentation may be reused, modified, and redistributed under the terms of the MIT License:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this documentation and associated patch description, to deal in the materials without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies.
+
+THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.

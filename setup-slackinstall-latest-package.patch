@@ -1,0 +1,22 @@
+--- usr/lib/setup/slackinstall.ORIGINAL
++++ usr/lib/setup/slackinstall
+@@ -134,7 +134,18 @@
+     fi
+     sleep 1
+     # Install the package series:
+-    for package in $SRCPATH/$series/*.t?z ; do
++    # 2026-04-22 Sylvain Robitaille <syl@therockgarden.ca>
++    # Find only the latest version of each package
++    for package in $( ls $SRCPATH/$series/*.t?z | sort -V |\
++        awk '{ match ( $0, /-[0-9]/ )
++               if ( RSTART > 0 ) {
++                 pkg = substr ( $0, 1, RSTART-1 )
++                 a[pkg] = $0
++               }
++             } END {
++               for ( i in a ) print a[i] | "sort"
++             }'
++        ); do
+       if [ "$MODE" = "full" ]; then # install the package
+         [ "x$REMOTESVR" != "x" ] && get_pkg $series $(basename $package) '-q'
+         installpkg -root $ROOTDIR -infobox -priority ADD $package
