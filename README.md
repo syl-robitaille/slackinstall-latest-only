@@ -47,7 +47,7 @@ xzcat /path/to/initrd.img | cpio -iv
 patch -p0 < /path/to/setup-slackinstall-latest-package.patch
 
 # create new initrd image
-find . -print0 | cpio --null -ov --format=newc | xz -9 > /path/to/initrd_NEW.img
+find . | cpio -o -H newc | xz -9fv -C crc32 > /path/to/initrd_NEW.img
 
 # make sure your installer will use the new initrd image
 mv -i /path/to/initrd.img /path/to/initrd_OLD.img
