@@ -1,22 +1,43 @@
---- usr/lib/setup/slackinstall.ORIGINAL
-+++ usr/lib/setup/slackinstall
-@@ -134,7 +134,18 @@
+--- ./usr/lib/setup/slackinstall.ORIGINAL       2026-08-28 19:27:06.700641532 -0300
++++ ./usr/lib/setup/slackinstall        2026-08-28 19:38:45.752955423 -0300
+@@ -134,7 +134,38 @@ Installing package series ==>$1<==
      fi
      sleep 1
      # Install the package series:
 -    for package in $SRCPATH/$series/*.t?z ; do
-+    # 2026-04-22 Sylvain Robitaille <syl@therockgarden.ca>
-+    # Find only the latest version of each package
 +    for package in $( ls $SRCPATH/$series/*.t?z | sort -V |\
-+        awk '{ match ( $0, /-[0-9]/ )
-+               if ( RSTART > 0 ) {
-+                 pkg = substr ( $0, 1, RSTART-1 )
-+                 a[pkg] = $0
-+               }
-+             } END {
-+               for ( i in a ) print a[i] | "sort"
-+             }'
-+        ); do
++       awk -v srcdir="$SRCPATH/$series" -v series="$series" \
++           -v changelog="$SRCPATH/../ChangeLog.txt" '
++         function pkgname(f,   n, r) {
++           n = f; sub(/^.*\//, "", n)   # basename
++           r = match(n, /-[0-9]/)       # first "-digit" = end of pkg name
++           return (r > 0) ? substr(n, 1, r-1) : n
++         }
++         {
++           p = pkgname($0)
++           latest[p] = $0               # fallback: highest-version file
++         }
++         END {
++           # changelog is authoritative; newest-first, first match per pkg wins
++           while ((getline ln < changelog) > 0) {
++             if (ln ~ "^" series "/" && ln ~ /\.txz:/) {
++               n = ln; sub(/^.*\//, "", n); sub(/:.*$/, "", n)
++               p = pkgname(n)
++               if (!(p in intended)) intended[p] = n
++             }
++           }
++           close(changelog)
++           for (p in latest) {
++             if (p in intended) {
++               f = srcdir "/" intended[p]
++               if (system("test -f \"" f "\"") == 0) { print f; continue }
++             }
++             print latest[p]            # not in changelog, or file missing
++           }
++         }
++       ' | sort -V
++    ); do
        if [ "$MODE" = "full" ]; then # install the package
          [ "x$REMOTESVR" != "x" ] && get_pkg $series $(basename $package) '-q'
          installpkg -root $ROOTDIR -infobox -priority ADD $package
+
